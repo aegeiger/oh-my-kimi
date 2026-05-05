@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oh-my-kimi-cli-init
+  namespace: oh-my-kimi
+  labels:
+    app.kubernetes.io/name: oh-my-kimi-cli
+    app.kubernetes.io/instance: init
+spec:
+  backoffLimit: 1
+  activeDeadlineSeconds: 30
+  template:
+    spec:
+      containers:
+      - name: oh-my-kimi-cli
+        image: quay.io/aicatalyst/oh-my-kimi-oh-my-kimi-cli:latest
+        imagePullPolicy: IfNotPresent
+        command: ["node", "dist/cli.js"]
+        args: ["init"]
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 512Mi
+            cpu: 500m
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+      restartPolicy: Never
