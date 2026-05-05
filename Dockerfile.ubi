@@ -1,0 +1,17 @@
+FROM registry.access.redhat.com/ubi9/nodejs-22
+
+WORKDIR /opt/app-root/src
+
+COPY . .
+
+USER 0
+
+RUN npm install && npm run build && \
+    chgrp -R 0 /opt/app-root && \
+    chmod -R g=u /opt/app-root
+
+RUN chgrp -R 0 /opt/app-root/src/node_modules && chmod -R g=u /opt/app-root/src/node_modules || true
+USER 1001
+
+ENTRYPOINT ["node", "dist/cli.js"]
+CMD ["--help"]
