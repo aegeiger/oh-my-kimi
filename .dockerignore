@@ -1,0 +1,14 @@
+.git
+*.md
+!README.md
+LICENSE
+kubernetes/
+poc-plan.md
+docs/
+readmeasset/
+readmeomkcockpit.png
+.github/
+examples/
+node_modules/
+dist/
+.env*
