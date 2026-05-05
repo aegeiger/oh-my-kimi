@@ -1,24 +1,28 @@
-FROM registry.access.redhat.com/ubi9/nodejs-22
+FROM registry.access.redhat.com/ubi9/nodejs-20
 
 WORKDIR /opt/app-root/src
 
-# Install dependencies
-COPY package.json .
+# Install dependencies as root first
+USER 0
+
+# Copy package files and install dependencies
+COPY package.json .npmrc .
 RUN npm install
 
-# Build the project
+# Copy remaining source code
 COPY . .
+
+# Build the TypeScript project
 RUN npm run build
 
-# Set permissions for OpenShift arbitrary UID support
-USER 0
-RUN chgrp -R 0 /opt/app-root && \ 
+# Fix permissions for non-root user
+RUN chgrp -R 0 /opt/app-root && \
     chmod -R g=u /opt/app-root
+
+# Switch to non-root user
+RUN chgrp -R 0 /opt/app-root/src/node_modules && chmod -R g=u /opt/app-root/src/node_modules || true
 USER 1001
 
-# Run as non-root user
-USER 1001
-
-# Execute CLI
+# Set entry point for CLI tool
 ENTRYPOINT ["node", "dist/cli.js"]
 CMD ["--help"]
